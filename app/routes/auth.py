@@ -6,12 +6,10 @@ from pymongo import MongoClient
 from langgraph.graph import StateGraph,START, END
 from typing import TypedDict, Optional
 
-#* ------------------ Login / Sign-Up ------------------
-
 load_dotenv()
 
 client = MongoClient(os.getenv("MONGO_URI"))
-db = client["ai-gf"]
+db = client[os.getenv("DB_NAME")]
 users = db["users"]
 
 #? Hash the Password
@@ -19,7 +17,7 @@ def hashing(password: str):
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
 def verify_password(password: str, hashed: bytes) -> bool:
-    return bcrypt.checkpw(password.encode, hashed)
+    return bcrypt.checkpw(password.encode(), hashed)
 
 class AuthState(TypedDict):
     action: str
@@ -27,8 +25,6 @@ class AuthState(TypedDict):
     password: str
     result: Optional[str]
 
-def auth_node(state: AuthState):
-    return state
 
 #* Login
 def login(state: AuthState):
@@ -70,15 +66,13 @@ def route_after_login(state: AuthState):
 
 graph_builder = StateGraph(AuthState)
 
-graph_builder.add_node("auth_node", auth_node)
 graph_builder.add_node("login", login)
 graph_builder.add_node("signup", signup)
 
 
-graph_builder.add_edge(START, "auth_node")
 
 graph_builder.add_conditional_edges(
-    "auth_node",
+    START,
     lambda state: state["action"],
     {
         "login": "login",
@@ -99,8 +93,27 @@ graph_builder.add_edge("signup", END)
 graph = graph_builder.compile()
 
 def run_auth(action: str, username: str, password: str):
-    return graph.invoke({
+    final_state = graph.invoke({
         "action": action,
         "username": username,
         "password": password
     })
+
+    result = final_state["result"]
+
+    if result == "wrong_password":
+        print("Wrong password.")
+        return None
+    
+    if result == "user_already_exist":
+        print("User already exists.")
+        return None
+
+    user = users.find_one({"username": final_state["username"]})
+
+    return {
+        "action": action,
+        "username": final_state["username"],
+        "user_id": user["user_id"] if user else None,
+        "result": final_state["result"]
+    }
