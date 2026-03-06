@@ -8,6 +8,7 @@ from langchain.chat_models import init_chat_model
 from langgraph.checkpoint.mongodb import MongoDBSaver
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langchain_core.tools import tool
+from prompts.default import SYSTEM
 from prompts.persona import GIRL_FRIEND, BOY_FRIEND, FRIEND
 from memory.user_memory import get_memory
 
@@ -64,7 +65,7 @@ def chat(user_query: str, user_id: str, persona: str , checkpointer)->str:
     }
 
     user_facts = get_memory(user_id, user_query)
-    system = personas[persona] + f"\n\nWhat you know about user:\n{user_facts}"
+    system = f"{SYSTEM}" + f"\n\n\nYour Persona:\n{personas[persona]}" + f"\n\n\nWhat you know about user:\n{user_facts}"
 
     final_state = graph.invoke(State({"messages": [SystemMessage(content=system), HumanMessage(content=user_query)]}), config)
     last_message = final_state['messages'][-1].content
