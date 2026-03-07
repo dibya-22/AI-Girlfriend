@@ -12,7 +12,7 @@ config = {
     "embedder": {
         "provider": "huggingface",
         "config": {
-            "model": "BAAI/bge-large-en-v1.5"  # 1024 dims
+            "model": "BAAI/bge-large-en-v1.5"
         }
     },
     "llm": {
@@ -33,7 +33,7 @@ config = {
             "host": "localhost",
             "port": 6333,
             "embedding_model_dims": 1024,
-            "collection_name": "ai-gf"
+            "collection_name": os.getenv("DB_NAME")
         }
     }
 }
