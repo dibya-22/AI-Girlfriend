@@ -37,7 +37,7 @@ def terminate() -> str:
 llm_with_tools = llm.bind_tools([switch_mode, terminate])
 
 def chatbot(state: State):
-    response = llm.invoke(state.get("messages"))
+    response = llm_with_tools.invoke(state.get("messages"))
     return {"messages": [response]}
 
 graph_builder = StateGraph(State)
@@ -46,9 +46,11 @@ graph_builder.add_node("chatbot", chatbot)
 graph_builder.add_edge(START, "chatbot")
 graph_builder.add_edge("chatbot", END)
 
-DB_URI = f"{os.getenv("MONGO_URI")}/{os.getenv("DB_NAME")}"
 def get_graph():
-    return MongoDBSaver.from_conn_string(DB_URI)
+    return MongoDBSaver.from_conn_string(
+        os.getenv("MONGO_URI"),
+        db_name=os.getenv("DB_NAME")
+    )
 
 def chat(user_query: str, user_id: str, persona: str , checkpointer)->str:
     graph = graph_builder.compile(checkpointer=checkpointer)
@@ -59,8 +61,8 @@ def chat(user_query: str, user_id: str, persona: str , checkpointer)->str:
     }
 
     personas = {
-        "gf": GIRL_FRIEND,
-        "bf": BOY_FRIEND,
+        "girlfriend": GIRL_FRIEND,
+        "boyfriend": BOY_FRIEND,
         "friend": FRIEND
     }
 
@@ -68,7 +70,13 @@ def chat(user_query: str, user_id: str, persona: str , checkpointer)->str:
     system = f"{SYSTEM}" + f"\n\n\nYour Persona:\n{personas[persona]}" + f"\n\n\nWhat you know about user:\n{user_facts}"
 
     final_state = graph.invoke(State({"messages": [SystemMessage(content=system), HumanMessage(content=user_query)]}), config)
-    last_message = final_state['messages'][-1].content
+
+    last_message = final_state['messages'][-1]
+
+    if isinstance(last_message.content, list):
+        content = " ".join([block["text"] for block in last_message.content if block.get("type") == "text"])
+    else:
+        content = last_message.content
 
     new_mode = None
     should_terminate = False
@@ -81,4 +89,4 @@ def chat(user_query: str, user_id: str, persona: str , checkpointer)->str:
                 if tool_call["name"] == "terminate":
                     should_terminate = True
     
-    return last_message, new_mode, should_terminate
+    return content, new_mode, should_terminate
