@@ -5,18 +5,10 @@ from voice.tts import speak
 
 def start_chat(user: dict):
     user_id = user["user_id"]
-    print("Which Mode Do You Prefer?")
-    choice = input("1. Text\n2. Voice\nChoose: ").lower()
+    mode = user.get("mode", "text")
+    persona = user.get("persona", "friend")
 
-    mode = "text" #? default
-    match choice:
-        case "1" | "text":
-            mode = "text"
-        case "2" | "voice":
-            mode = "voice"
-        case _:
-            print("Invalid Mode. Setting mode to Text")
-            mode = "text"
+    
     with get_graph() as checkpointer:
         while True:
             if mode == "voice":
@@ -32,7 +24,7 @@ def start_chat(user: dict):
                 print("Invalid Input! Please Enter Again")
                 continue
 
-            response, new_mode, should_terminate = chat(user_input, user_id, "gf", checkpointer)
+            response, new_mode, should_terminate = chat(user_input, user_id, persona, checkpointer)
 
             if mode == "voice":
                 speak(response)
@@ -46,6 +38,7 @@ def start_chat(user: dict):
                 if mode == "voice":
                     speak("Bye! Talk soon")
                 print("🤖: Bye! Talk soon 💕")
+                break
 
             if new_mode and new_mode != mode:
                 mode = new_mode

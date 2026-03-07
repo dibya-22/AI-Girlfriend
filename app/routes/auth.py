@@ -23,6 +23,8 @@ class AuthState(TypedDict):
     action: str
     username: str
     password: str
+    persona: Optional[str]
+    mode: Optional[str]
     result: Optional[str]
 
 
@@ -31,7 +33,6 @@ def login(state: AuthState):
     user = users.find_one({"username": state["username"]})
 
     if not user:
-        print("user not found, signing up")
         state["result"] = "user_not_found"
         return state
 
@@ -51,18 +52,15 @@ def signup(state: AuthState):
     user_info = {
         "user_id": str(uuid.uuid4()),
         "username": state["username"],
-        "password": hashing(state["password"])
+        "password": hashing(state["password"]),
+        "persona": state["persona"],
+        "mode": state["mode"],
     }
 
     users.insert_one(user_info)
     state["result"] = "signup_success"
     return state
 
-def route_after_login(state: AuthState):
-    if state["result"] == "user_not_found":
-        return "signup"
-    else: 
-        return "end"
 
 graph_builder = StateGraph(AuthState)
 
@@ -80,23 +78,18 @@ graph_builder.add_conditional_edges(
     }
 )
 
-graph_builder.add_conditional_edges(
-    "login",
-    route_after_login,
-    {
-        "signup": "signup",
-        "end": END
-    }
-)
+graph_builder.add_edge("login", END)
 graph_builder.add_edge("signup", END)
 
 graph = graph_builder.compile()
 
-def run_auth(action: str, username: str, password: str):
+def run_auth(action: str, username: str, password: str, persona: str = None, mode: str = None):
     final_state = graph.invoke({
         "action": action,
         "username": username,
-        "password": password
+        "password": password,
+        "persona": persona,
+        "mode": mode
     })
 
     result = final_state["result"]
@@ -108,6 +101,10 @@ def run_auth(action: str, username: str, password: str):
     if result == "user_already_exist":
         print("User already exists.")
         return None
+    
+    if result == "user_not_found":
+        print("User not found.")
+        return None
 
     user = users.find_one({"username": final_state["username"]})
 
@@ -115,5 +112,7 @@ def run_auth(action: str, username: str, password: str):
         "action": action,
         "username": final_state["username"],
         "user_id": user["user_id"] if user else None,
+        "persona": user["persona"] if user else None,
+        "mode": user["mode"] if user else None,
         "result": final_state["result"]
     }
