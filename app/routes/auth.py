@@ -83,6 +83,9 @@ graph_builder.add_edge("signup", END)
 
 graph = graph_builder.compile()
 
+def update_mode(user_id: str, mode: str):
+    users.update_one({"user_id": user_id}, {"$set": {"mode": mode}})
+
 def run_auth(action: str, username: str, password: str, persona: str = None, mode: str = None):
     final_state = graph.invoke({
         "action": action,
