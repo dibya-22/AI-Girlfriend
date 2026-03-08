@@ -1,4 +1,5 @@
 from chains.chat import chat, get_graph
+from routes.auth import update_mode
 from memory.user_memory import add_memory
 from voice.stt import listen
 from voice.tts import speak
@@ -12,11 +13,12 @@ def start_chat(user: dict):
     with get_graph() as checkpointer:
         while True:
             if mode == "voice":
-                print(">", end=" ", flush=True)
+                print(">", end="", flush=True)
                 user_input = listen()
+                print(">", end=" ", flush=True)
                 print(user_input)
             else:
-                user_input = input("> ")
+                user_input = input(">> ")
 
             if not user_input:
                 if mode == "voice":
@@ -42,4 +44,5 @@ def start_chat(user: dict):
 
             if new_mode and new_mode != mode:
                 mode = new_mode
+                update_mode(user_id, mode) #* save to DB
                 print(f"[Switched to {mode} mode]")
