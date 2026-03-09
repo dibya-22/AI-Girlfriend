@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from langgraph.graph import StateGraph,START, END
 from typing import TypedDict, Optional
+from utils.color_print import forecolor
 
 load_dotenv()
 
@@ -98,15 +99,15 @@ def run_auth(action: str, username: str, password: str, persona: str = None, mod
     result = final_state["result"]
 
     if result == "wrong_password":
-        print("Wrong password.")
+        print(forecolor("Wrong password.", "red"))
         return None
     
     if result == "user_already_exist":
-        print("User already exists.")
+        print(forecolor("User already exists.", "red"))
         return None
     
     if result == "user_not_found":
-        print("User not found.")
+        print(forecolor("User not found.", "red"))
         return None
 
     user = users.find_one({"username": final_state["username"]})

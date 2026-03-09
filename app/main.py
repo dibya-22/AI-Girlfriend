@@ -2,6 +2,7 @@ import sys, os
 import threading
 import time
 from utils.loading import loading_animation
+from utils.color_print import forecolor
 
 # suppress startup noise
 sys.stderr = open(os.devnull, 'w')
@@ -29,7 +30,7 @@ t.join()
 user = Auth()
 
 if user is None:
-    print("Exiting...")
+    print(forecolor("Exiting...", "green"))
 else:
-    print(f"Welcome back, {user['username']}!")
+    print(f"Welcome back, {forecolor(user['username'], 'cyan')}!")
     start_chat(user)
