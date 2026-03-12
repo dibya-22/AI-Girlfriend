@@ -63,13 +63,21 @@ def chat(user_query: str, user_id: str, persona: str , checkpointer)->str:
     personas = {
         "girlfriend": GIRL_FRIEND,
         "boyfriend": BOY_FRIEND,
-        "friend": FRIEND
+        "friend": FRIEND,
+        
     }
 
     user_facts = get_memory(user_id, user_query)
     system = f"{SYSTEM}" + f"\n\n\nYour Persona:\n{personas[persona]}" + f"\n\n\nWhat you know about user:\n{user_facts}"
 
-    final_state = graph.invoke(State({"messages": [SystemMessage(content=system), HumanMessage(content=user_query)]}), config)
+    existing_messages = graph.get_state(config).values.get("messages", [])
+
+    if not any(isinstance(message, SystemMessage) for message in existing_messages):
+        messages = [SystemMessage(content=system), HumanMessage(content=user_query)]
+    else:
+        messages = [HumanMessage(content=user_query)]
+
+    final_state = graph.invoke(State({"messages": messages}), config)
 
     last_message = final_state['messages'][-1]
 
