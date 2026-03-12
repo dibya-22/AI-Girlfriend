@@ -36,3 +36,6 @@ dist/
 # Test
 test/
 tests/
+
+# Notes
+.TODO.md
