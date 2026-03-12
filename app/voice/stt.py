@@ -1,4 +1,5 @@
 import speech_recognition as sr
+from utils.color_print import forecolor
 
 def listen() -> str:
     r = sr.Recognizer()
@@ -11,8 +12,8 @@ def listen() -> str:
     try:
         return r.recognize_google(audio)
     except sr.UnknownValueError:
-        print("Could not understand, please try again.")
+        print(forecolor("Could not understand, please try again.", "red"))
         return ""
     except sr.RequestError:
-        print("Speech service unavailable.")
+        print(forecolor("Speech service unavailable.", "red"))
         return ""
