@@ -8,7 +8,7 @@ from utils.color_print import forecolor
 def start_chat(user: dict):
     user_id = user["user_id"]
     mode = user.get("mode", "text")
-    persona = user.get("persona", "friend")
+    persona = user.get("persona") or "friend"
 
     
     with get_graph() as checkpointer:
