@@ -18,6 +18,7 @@ def Auth():
 
     persona = None
     mode = None
+    accent = None
 
 
     if action == "signup":
