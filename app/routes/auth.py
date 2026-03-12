@@ -26,6 +26,7 @@ class AuthState(TypedDict):
     password: str
     persona: Optional[str]
     mode: Optional[str]
+    accent: Optional[str]
     result: Optional[str]
 
 
@@ -56,6 +57,7 @@ def signup(state: AuthState):
         "password": hashing(state["password"]),
         "persona": state["persona"],
         "mode": state["mode"],
+        "accent": state["accent"]
     }
 
     users.insert_one(user_info)
@@ -87,13 +89,18 @@ graph = graph_builder.compile()
 def update_mode(user_id: str, mode: str):
     users.update_one({"user_id": user_id}, {"$set": {"mode": mode}})
 
-def run_auth(action: str, username: str, password: str, persona: str = None, mode: str = None):
+def get_accent(user_id: str):
+    user = users.find_one({"user_id": user_id})
+    return user["accent"] if user else None
+
+def run_auth(action: str, username: str, password: str, persona: str = None, mode: str = None, accent: str = None):
     final_state = graph.invoke({
         "action": action,
         "username": username,
         "password": password,
         "persona": persona,
-        "mode": mode
+        "mode": mode,
+        "accent": accent
     })
 
     result = final_state["result"]
