@@ -1,8 +1,8 @@
 import sys, os
-import threading
-import time
-from utils.loading import loading_animation
 from utils.color_print import forecolor
+from utils.gettime import gettime
+
+print("Loading...")
 
 # suppress startup noise
 sys.stderr = open(os.devnull, 'w')
@@ -16,21 +16,14 @@ from routes.chat import start_chat
 sys.stderr = sys.__stderr__
 sys.stdout = sys.__stdout__
 
+os.system("cls")
+
 load_dotenv()
-
-stop_event = threading.Event()
-t = threading.Thread(target=loading_animation, args=(stop_event,))
-t.start()
-
-time.sleep(0.5)  #? small delay so animation is visible
-
-stop_event.set()
-t.join()
 
 user = Auth()
 
 if user is None:
-    print(forecolor("Exiting...", "green"))
+    print(forecolor("Exiting...", "red"))
 else:
-    print(f"Welcome back, {forecolor(user['username'], 'cyan')}!")
+    print(f"Good {gettime()}, {forecolor(user['username'], 'cyan')}!")
     start_chat(user)
