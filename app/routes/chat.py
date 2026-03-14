@@ -17,7 +17,7 @@ def start_chat(user: dict):
                 print(forecolor(">", "yellow", "bright"), end="", flush=True)
                 user_input = listen()
                 if user_input:
-                    print(forecolor(">", "yellow", "bright"), end="", flush=True)
+                    print(forecolor(">", "yellow", "bright"), end=" ", flush=True)
                     print(user_input) 
             else:
                 user_input = input(forecolor(">> ", "blue", "bright"))
@@ -33,9 +33,7 @@ def start_chat(user: dict):
             if response:
                 if mode == "voice":
                     speak(response, user_id)
-                    print(f"🤖: {forecolor(response, 'white')}\n")
-                else:
-                    print(f"🤖: {forecolor(response, 'white')}\n")
+                print(f"🤖: {forecolor(response, 'white')}\n")
 
             add_memory(user_input, response, user_id)
 
