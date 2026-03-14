@@ -1,120 +1,102 @@
-# AI GF - AI Girlfriend CLI
+# AI GF — CLI AI Companion
 
-A command-line AI companion system built with modern backend architecture practices. Chat with an AI companion featuring user authentication, memory management, and voice capabilities.
+A command-line AI companion built with LangChain, LangGraph, and Google Gemini. Talk to an AI with persistent memory, multiple personas, and voice support.
 
-## 🎯 Goal
+> Built as a personal project to practice clean backend architecture while building something actually useful.
 
-Create a CLI AI system while practicing clean backend design principles and implementing a production-ready architecture.
+---
 
-## ✨ Features
+## What it does
 
-- **User Authentication**: Secure registration and login with bcrypt password hashing
-- **Persistent Memory**: User conversation history stored in MongoDB with Qdrant vector embeddings
-- **Multiple Personas**: Support for different AI personas (Girlfriend, Boyfriend, Friend)
-- **Voice Capabilities**: 
-  - Speech-to-Text (STT) for voice input
-  - Text-to-Speech (TTS) for voice output
-- **LLM Integration**: Powered by Google's Gemini 2.5 Flash model via LangChain
-- **Intelligent Chains**: LangGraph-based conversation chains with state management
-- **Docker Support**: Easy deployment with Docker Compose
+- Login / Signup with secure password hashing
+- Choose a persona — Girlfriend, Boyfriend, or Friend
+- Chat via text or voice
+- AI remembers things you tell it across sessions
+- Switch between text and voice mid-conversation
+- Indian accent (Sarvam AI) or American accent (ElevenLabs) TTS
 
-## 📁 Project Structure
+---
+
+## Tech Stack
+
+| Category | Tools |
+|---|---|
+| LLM | Google Gemini 2.5 Flash |
+| Framework | LangChain, LangGraph |
+| Databases | MongoDB, Qdrant |
+| Voice | Sarvam AI (TTS), ElevenLabs (TTS), SpeechRecognition (STT) |
+| Auth | bcrypt |
+| CLI | colorama, questionary |
+
+---
+
+## Project Structure
 
 ```
 ai_gf/
 ├── app/
-│   ├── main.py                 # Entry point
-│   ├── chains/                 # LLM chain logic
-│   │   ├── __init__.py
-│   │   └── chat.py            # Conversation graph and tools
-│   ├── memory/                 # Memory management
-│   │   ├── __init__.py
-│   │   └── user_memory.py     # User conversation history
-│   ├── prompts/                # AI persona definitions
-│   │   ├── __init__.py
-│   │   ├── default.py         # Default prompts
+│   ├── main.py
+│   ├── chains/
+│   │   └── chat.py            # LangGraph conversation chain
+│   ├── memory/
+│   │   └── user_memory.py     # mem0 memory management
+│   ├── prompts/
+│   │   ├── default.py         # Base system prompt
 │   │   └── persona.py         # Persona templates
-│   ├── routes/                 # Core functionality modules
-│   │   ├── __init__.py
-│   │   ├── auth.py            # User authentication flow
-│   │   ├── chat.py            # Chat initiation
-│   │   └── user.py            # User management
-│   ├── utils/                  # Utility functions
-│   │   ├── __init__.py
-│   │   └── pass_input.py      # Input validation helpers
-│   └── voice/                  # Voice processing
-│       ├── __init__.py
-│       ├── stt.py             # Speech-to-Text
-│       └── tts.py             # Text-to-Speech
-├── docker-compose.yml          # Container orchestration
-├── requirement.txt             # Python dependencies
-├── env.txt                     # Environment variables template
-└── README.md
+│   ├── routes/
+│   │   ├── auth.py            # Auth logic
+│   │   ├── chat.py            # Chat loop
+│   │   └── user.py            # User flow
+│   ├── utils/
+│   │   ├── color_print.py     # Terminal colors
+│   │   ├── gettime.py         # Time of day helper
+│   │   └── pass_input.py      # Masked password input
+│   └── voice/
+│       ├── stt.py             # Speech to Text
+│       └── tts.py             # Text to Speech
+├── docker-compose.yml
+├── requirement.txt
+└── .env
 ```
 
-## 🛠️ Technologies Used
+---
 
-### Core Framework
-- **FastAPI** - Web framework (setup in routes)
-- **LangChain** - LLM framework
-- **LangGraph** - Agentic workflows and state management
-- **Google Gemini 2.5 Flash** - LLM model provider
+## Getting Started
 
-### Databases
-- **MongoDB** - User data and conversation storage
-- **Qdrant** - Vector database for semantic search and memory retrieval
-
-### Voice & Audio
-- **Sarvam AI** - Text-to-Speech
-- **SpeechRecognition** - Speech-to-Text
-
-### Security & Utilities
-- **bcrypt** - Password hashing
-- **MongoDB Checkpointer** - LangGraph state persistence
-- **python-dotenv** - Environment variable management
-
-## 📋 Prerequisites
-
-- Python 3.8+
-- MongoDB (can be run via Docker)
-- Qdrant vector database (can be run via Docker)
-- API Keys:
-  - Google AI / Gemini API key
-  - Sarvam API key (for voice)
-  - MongoDB connection string
-
-## 🚀 Installation
-
-### 1. Clone and Setup
+### 1. Clone the repo
 
 ```bash
 git clone https://github.com/dibya-22/AI-Girlfriend
-cd ai_gf
+cd AI-Girlfriend
 ```
 
-### 2. Create Virtual Environment
+### 2. Create virtual environment
 
 ```bash
 python -m venv .venv
-# On Windows
+
+# Windows
 .\.venv\Scripts\activate
-# On Linux/Mac
+
+# Linux / Mac
 source .venv/bin/activate
 ```
 
-### 3. Install Dependencies
+### 3. Install dependencies
 
 ```bash
 pip install -r requirement.txt
 ```
 
-### 4. Configure Environment Variables
+### 4. Set up environment variables
 
-Create a `.env` file in the root directory (use `env.txt` as reference):
-
+Rename **`.env.example`** to **`.env`** and fill in your keys:
+```env
 GOOGLE_API_KEY=
 
+# Voice API Keys
 SARVAM_API_KEY=
+ELEVENLABS_API_KEY=
 
 MONGO_URI=
 DB_NAME=
@@ -124,88 +106,74 @@ NEO_USERNAME=
 NEO_PASSWORD=
 ```
 
-### 5. Start Databases (Docker)
+Or create a new `.env` file manually with the same keys._PASSWORD=
+```
+
+### 5. Start databases
 
 ```bash
 docker-compose up -d
 ```
 
-This starts:
-- **MongoDB** on port 27017
-- **Qdrant Vector DB** on port 6333
+Starts MongoDB on port `27017` and Qdrant on port `6333`.
 
-## 🎮 Running the Application
-
-### Start the CLI
+### 6. Run
 
 ```bash
 python app/main.py
 ```
 
-### First Time Setup
-1. Create a new account with username and password
-2. Choose an AI persona (Girlfriend, Boyfriend, or Friend)
-3. Start chatting!
+---
 
-### Existing Users
-- Log in with your credentials
-- Resume conversations with your AI companion
-- Your conversation history is preserved
+## First Time
 
-## 💬 Usage
+1. Choose **Signup**
+2. Enter username and password
+3. Pick a persona — Girlfriend, Boyfriend, or Friend
+4. Pick a mode — Text or Voice
+5. Pick an accent — Indian or American
+6. Start chatting
 
-### Text Chat
-Simply type your message and press Enter. The AI will respond based on the selected persona.
+Returning users just log in and pick up where they left off.
 
-### Voice Chat
-1. Speak when prompted (STT will convert to text)
-2. AI processes your message
-3. Response is spoken back to you (TTS)
+---
 
-### Mode Switching
-Use voice commands or text prompts to switch between text and voice modes.
+## Voice Mode
 
-## 🔐 Security Features
+- Speak when you see the `>` prompt
+- Your speech is converted to text via Google Speech Recognition
+- Response is spoken back using Sarvam AI or ElevenLabs based on your accent preference
+- Say something like *"switch to text mode"* to switch mid-conversation
 
-- **Bcrypt Hashing**: Passwords are hashed with bcrypt before storage
-- **Session Management**: User sessions are managed securely
-- **Input Validation**: All inputs are validated in `utils/pass_input.py`
+## Personas & Voices
 
-## 📚 Architecture Highlights
+Each persona has a dedicated voice based on accent preference:
 
-### State Management
-- Uses **LangGraph State** for managing conversation state
-- MongoDB checkpointer for persistence across sessions
+| Persona | Indian Accent (Sarvam) | American Accent (ElevenLabs) |
+|---|---|---|
+| Girlfriend | Ishita | Bella |
+| Boyfriend | Ratan | Will |
+| Friend | Mani | Janet |
 
-### Memory System
-- Semantic memory using Qdrant embeddings
-- User-specific conversation history
-- Context-aware responses
+---
 
-### Agent Design
-- Tool-based architecture for extensibility
-- Mode switching capability (text/voice)
-- Modular persona system
+## Customization
 
-## 🔧 Configuration
+### Add a new persona
 
-### Adding New Personas
-
-Edit `app/prompts/persona.py` to add new AI personas:
+Edit `app/prompts/persona.py`:
 
 ```python
 YOUR_PERSONA = """
-You are [describe your AI character here]
+You are [describe your character here]
 """
 ```
 
-### Customizing Voice Settings
+Then add it to the `personas` dict in `app/chains/chat.py`.
 
-Modify Sarvam AI settings in `app/voice/tts.py` for different voices and settings.
+### Change the LLM model
 
-### Changing LLM Model
-
-Update the model in `app/chains/chat.py`:
+In `app/chains/chat.py`:
 
 ```python
 llm = init_chat_model(
@@ -214,54 +182,14 @@ llm = init_chat_model(
 )
 ```
 
-## 📊 Database Schema
+---
 
-### Users Collection
-```json
-{
-  "_id": "ObjectId",
-  "username": "string",
-  "password": "bcrypt_hash",
-  "created_at": "datetime",
-  "persona": "girlfriend|boyfriend|friend"
-}
-```
+## Notes
 
-### Conversations (via LangGraph Checkpoint)
-- Stored in MongoDB with full message history
-- Includes timestamps and user context
-
-## 🐛 Troubleshooting
-
-**Connection Issues to MongoDB/Qdrant**
-- Ensure Docker containers are running: `docker-compose ps`
-- Verify `.env` file has correct `MONGO_URI`
-
-**API Key Errors**
-- Check `.env` file is in root directory
-- Verify API keys are correct and have required permissions
-
-**Voice Not Working**
-- Check ElevenLabs API key is valid
-- Verify microphone permissions in system settings
-
-## 🚀 Future Enhancements
-
-- Web UI interface
-- Multi-language support
-- Advanced memory management (summarization, forgetting)
-- Custom model fine-tuning
-- Real-time streaming responses
-- Social features (friend interactions)
-
-## 📝 License
-
-[Add your license here]
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow the existing code structure and clean backend design principles.
+- ElevenLabs free tier only supports default voices via API
+- Make sure Docker is running before starting the app
+- Microphone access is required for voice mode
 
 ---
 
-**Built with ❤️ using LangChain, LangGraph, and Google Gemini AI**
+**Built by [Dibya](https://github.com/dibya-22) <3**
