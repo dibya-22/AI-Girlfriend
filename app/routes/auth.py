@@ -89,9 +89,9 @@ graph = graph_builder.compile()
 def update_mode(user_id: str, mode: str):
     users.update_one({"user_id": user_id}, {"$set": {"mode": mode}})
 
-def get_accent(user_id: str):
+def get_speak_details(user_id: str):
     user = users.find_one({"user_id": user_id})
-    return user["accent"] if user else None
+    return user["accent"] if user else None, user["persona"] if user else None
 
 def run_auth(action: str, username: str, password: str, persona: str = None, mode: str = None, accent: str = None):
     final_state = graph.invoke({
