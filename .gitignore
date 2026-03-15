@@ -36,6 +36,9 @@ dist/
 # Test
 test/
 tests/
+app/test/
+app/tests/
+app/test.py
 
 # Notes
 .TODO.md
