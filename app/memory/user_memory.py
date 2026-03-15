@@ -49,5 +49,15 @@ def add_memory(user_query: str, ai_response: str, user_id: str):
         ]
     )
 
-def get_memory(user_query: str, user_id: str):
-    return mem_client.search(query=user_query, user_id=user_id)
+def get_memory(user_query: str, user_id: str) -> str:
+    """
+    * Searches mem0 for relevant memories and relations for a given user
+    ? returns a clean string of memories and relations joined by newlines
+    ! empty string if no memories found
+    """
+    result = mem_client.search(query=user_query, user_id=user_id)
+    memories = [r["memory"] for r in result.get("results", [])]
+    relation = [f"{r['source']} {r['relationship']} {r['target']}" for r in result.get("relations", [])]
+
+    combined = memories + relation
+    return "\n".join(combined)
