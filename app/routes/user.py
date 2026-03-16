@@ -1,6 +1,6 @@
 import os
 from utils.pass_input import pass_input
-from utils.color_print import backcolor
+from utils.color_print import forecolor, backcolor
 from routes.auth import run_auth
 import questionary
 
@@ -11,10 +11,7 @@ def Auth():
     ).ask().lower()
 
     os.system("cls")
-    print(f"{backcolor('__LOGIN__', "cyan", "bright") if action == 'login' else backcolor('__SIGN UP__', "cyan", "bright")}")
-
-    username = input("Username: ")
-    password = pass_input()
+    print(f"{backcolor('__LOGIN__', 'cyan', 'bright') if action == 'login' else backcolor('__SIGN UP__', 'cyan', 'bright')}")
 
     persona = None
     mode = None
@@ -39,10 +36,26 @@ def Auth():
             choices=["Indian", "American"],
         ).ask().lower()
             
+        result = None
+        for attempt in range(3):
+            username = input("Username: ")
+            password = pass_input()
     
-        result = run_auth(action, username, password, persona, mode, accent)
+            result = run_auth(action, username, password, persona, mode, accent)
+            if result is not None:
+                break
+            if attempt < 2:
+                print(forecolor(f"Try another username. {2 - attempt} attempt(s) left.", "yellow"))
     else:
-        result = run_auth(action, username, password)
+        username = input("Username: ")
+        result = None
+        for attempt in range(3):
+            password = pass_input()
+            result = run_auth(action, username, password)
+            if result is not None:
+                break
+            if attempt < 2:
+                print(forecolor(f"Try again. {2 - attempt} attempt(s) left.", "yellow"))
 
     if result is None:
         return None
