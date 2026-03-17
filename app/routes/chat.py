@@ -34,8 +34,7 @@ def start_chat(user: dict):
                 if mode == "voice":
                     speak(response, user_id)
                 print(f"🤖: {forecolor(response, 'white')}\n")
-
-            add_memory(user_input, response, user_id)
+                add_memory(user_input, response, user_id)
 
             if should_terminate:
                 if mode == "voice":
