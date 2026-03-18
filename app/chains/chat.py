@@ -19,7 +19,6 @@ llm = init_chat_model(
     model_provider="google_genai"
 )
 
-
 class State(TypedDict):
     messages: Annotated[list, add_messages]
 
@@ -32,7 +31,6 @@ def switch_mode(mode: str) -> str:
 def terminate() -> str:
     """Terminate the conversation when user wants to exit."""
     return "terminate"
-
 
 llm_with_tools = llm.bind_tools([switch_mode, terminate])
 
@@ -52,7 +50,7 @@ def get_graph():
         db_name=os.getenv("DB_NAME")
     )
 
-def chat(user_query: str, user_id: str, persona: str , checkpointer)->str:
+def chat(user_query: str, user_id: str, persona: str, checkpointer) -> str:
     graph = graph_builder.compile(checkpointer=checkpointer)
     config = {
         "configurable": {
@@ -64,15 +62,16 @@ def chat(user_query: str, user_id: str, persona: str , checkpointer)->str:
         "girlfriend": GIRL_FRIEND,
         "boyfriend": BOY_FRIEND,
         "friend": FRIEND,
-        
     }
 
     user_facts = get_memory(user_id, user_query)
     system = f"{SYSTEM}" + f"\n\n\nYour Persona:\n{personas[persona]}" + f"\n\n\nWhat you know about user:\n{user_facts}"
 
     existing_messages = graph.get_state(config).values.get("messages", [])
+    message_count = len(existing_messages)
 
-    if not any(isinstance(message, SystemMessage) for message in existing_messages):
+    #* inject system prompt on first message or every 5 messages to keep mem0 facts fresh
+    if message_count == 0 or message_count % 5 == 0:
         messages = [SystemMessage(content=system), HumanMessage(content=user_query)]
     else:
         messages = [HumanMessage(content=user_query)]
@@ -96,5 +95,5 @@ def chat(user_query: str, user_id: str, persona: str , checkpointer)->str:
                     new_mode = tool_call["args"]["mode"]
                 if tool_call["name"] == "terminate":
                     should_terminate = True
-    
+
     return content, new_mode, should_terminate
