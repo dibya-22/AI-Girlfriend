@@ -4,10 +4,14 @@ from utils.color_print import forecolor
 def listen() -> str:
     r = sr.Recognizer()
 
-    with sr.Microphone() as source:
-        r.pause_threshold = 1  
-        r.energy_threshold = 300 
-        audio = r.listen(source)
+    try:
+        with sr.Microphone() as source:
+            r.pause_threshold = 1  
+            r.energy_threshold = 300 
+            audio = r.listen(source, timeout=5)
+    except sr.WaitTimeoutError:
+        print(forecolor("No speech Detected.", "yellow"))
+        return ""
 
     try:
         return r.recognize_google(audio)
