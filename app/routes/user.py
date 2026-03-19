@@ -42,22 +42,30 @@ def Auth():
             password = pass_input()
     
             result = run_auth(action, username, password, persona, mode, accent)
-            if result is not None:
+            if result == "user_already_exist":
+                print(forecolor("Username already taken.", "red"))
+                if attempt < 2:
+                    print(forecolor(f"Try another. {2 - attempt} attempt(s) left.", "yellow"))
+            else:
                 break
-            if attempt < 2:
-                print(forecolor(f"Try another username. {2 - attempt} attempt(s) left.", "yellow"))
     else:
         username = input("Username: ")
         result = None
         for attempt in range(3):
             password = pass_input()
             result = run_auth(action, username, password)
-            if result is not None:
+            if result == "user_not_found":
+                print(forecolor("Username not found. Please Sign up", "red"))
+                result = None
                 break
-            if attempt < 2:
-                print(forecolor(f"Try again. {2 - attempt} attempt(s) left.", "yellow"))
+            elif result == "wrong_password":
+                print(forecolor("Wrong password.", "red"))
+                if attempt < 2:
+                    print(forecolor(f"Try again. {2 - attempt} attempt(s) left.", "yellow"))
+            else:
+                break
 
-    if result is None:
+    if result is None or isinstance(result, str):
         return None
     else:
         return {
